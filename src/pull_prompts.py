@@ -37,30 +37,28 @@ def pull_prompts_from_langsmith():
         return False
 
 def tratar_dados(prompt_obj):
-    messages_data = []
-    role = ""
+    system_prompt = ""
+    user_prompt = ""
+    
     for message in prompt_obj.messages:
         type_str = str(type(message)).lower()
             
         if "system" in type_str:
-            role = "system"
+            system_prompt = message.prompt.template
         elif "human" in type_str:
-            role = "user"
-        elif "ai" in type_str:
-            role = "assistant"
+            user_prompt = message.prompt.template
         else:
-            role = "user" # Fallback padrão para prompts de chat
-            
-        messages_data.append({
-                "role": role,
-                "content": message.prompt.template
-            })
+            user_prompt = message.prompt.template # Fallback padrão para prompts de chat
 
-    prompt_dict = {"name": getattr(prompt_obj, "metadata", {}).get("lc_hub_repo", "empty"),
-        "author": getattr(prompt_obj, "metadata", {}).get("lc_hub_owner", "empty"),
-        "version": getattr(prompt_obj, "metadata", {}).get("lc_hub_commit_hash", "latest"),
-        "input_variables": prompt_obj.input_variables ,
-        "messages": messages_data,
+    prompt_dict = {
+        "bug_to_user_story_v1": {
+            "description": "Prompt para converter relatos de bugs em User Stories",
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
+            "version": "v1",
+            "created_at": "2025-01-15",
+            "tags": ["bug-analysis", "user-story", "product-management"]
+        }
     }
     
     return prompt_dict

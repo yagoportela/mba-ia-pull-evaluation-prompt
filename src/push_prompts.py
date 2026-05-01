@@ -32,17 +32,15 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
         True se sucesso, False caso contrário
     """ 
     try:
-        # 1. Reconstrói as mensagens usando Tuplas
-        formatted_messages = []
-        for msg in prompt_data.get("messages", []):
-            role = msg.get("role", "").lower()
-            content = msg.get("content", "")
+        # 1. Extrai os dados do prompt
+        prompt_config = prompt_data.get("bug_to_user_story_v2", {})
+        system_prompt = prompt_config.get("system_prompt", "")
+        user_prompt = prompt_config.get("user_prompt", "")
 
-            if role == "system":
-                formatted_messages.append(SystemMessagePromptTemplate.from_template(content))
-
-            if role == "user":
-                formatted_messages.append(HumanMessagePromptTemplate.from_template(content))
+        formatted_messages = [
+            SystemMessagePromptTemplate.from_template(system_prompt),
+            HumanMessagePromptTemplate.from_template(user_prompt)
+        ]
             
 
         # 2. Cria o objeto ChatPromptTemplate
@@ -55,7 +53,7 @@ def push_prompt_to_langsmith(prompt_name: str, prompt_data: dict) -> bool:
             prompt_name,
             prompt_template,
             new_repo_is_public=True, # Torna público conforme exigido
-            new_repo_description="Prompt otimizado usando Role Prompting, Few-Shot, Chain of Thought e Skeleton of Thought para converter bugs em User Stories."
+            new_repo_description=prompt_config.get("description", "Prompt otimizado para converter bugs em User Stories.")
         )
         
         print(f"Push realizado com sucesso!")
@@ -85,25 +83,17 @@ def validate_prompt(prompt_data: dict) -> tuple[bool, list]:
     if not prompt_data:
         return False, ["Os dados do prompt estão vazios."]
 
-    # Verifica existencia da lista de mensagens
-    if "messages" not in prompt_data or not isinstance(prompt_data["messages"], list):
-        errors.append("O campo 'messages' é obrigatório e deve ser uma lista.")
+    # Extrai o nó raiz
+    prompt_config = prompt_data.get("bug_to_user_story_v2")
+    if not prompt_config:
+        errors.append("A chave raiz 'bug_to_user_story_v2' não foi encontrada.")
         return False, errors
 
-    messages = prompt_data["messages"]
-    if len(messages) == 0:
-        errors.append("A lista 'messages' não pode estar vazia.")
-    
-    # Verifica a integridade de cada mensagem e se existe um System Prompt
-    has_system = False
-    for i, msg in enumerate(messages):
-        if "role" not in msg or "content" not in msg:
-            errors.append(f"A mensagem no índice {i} deve conter as chaves 'role' e 'content'.")
-        elif msg.get("role") == "system":
-            has_system = True
-            
-    if not has_system:
-        errors.append("O prompt otimizado precisa obrigatoriamente de uma mensagem com role 'system'.")
+    if "system_prompt" not in prompt_config or not prompt_config["system_prompt"]:
+        errors.append("O campo 'system_prompt' é obrigatório.")
+        
+    if "user_prompt" not in prompt_config or not prompt_config["user_prompt"]:
+        errors.append("O campo 'user_prompt' é obrigatório.")
 
     # Retorna True se não houver erros
     is_valid = len(errors) == 0
@@ -124,12 +114,14 @@ def main():
     print(f"Carregando arquivo: {file_path}")
     try:
         prompt_data = load_yaml(file_path) 
+        if not prompt_data:
+            return False
     except FileNotFoundError:
         print(f"Arquivo {file_path} não encontrado. Complete a Fase 2 primeiro.")
-        return 1
+        return False
     except Exception as e:
         print(f"Erro ao ler o YAML: {e}")
-        return 1
+        return False
 
     # 3. Validação do Prompt
     print("Validando a estrutura do prompt...")
@@ -139,7 +131,7 @@ def main():
         print("Validação falhou! Corrija os erros no YAML:")
         for erro in errors:
             print(f"  - {erro}")
-        return 1
+        return False
     
     print("Estrutura validada com sucesso.")
 
@@ -148,7 +140,7 @@ def main():
     prompt_name = f"{username}/bug_to_user_story_v2"
     success = push_prompt_to_langsmith(prompt_name, prompt_data)
 
-    return 0 if success else 1
+    return success
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(0 if main() else 1)

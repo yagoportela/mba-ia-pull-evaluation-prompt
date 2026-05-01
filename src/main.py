@@ -13,19 +13,19 @@ def run_workflow():
     total_sucesso = 0
     total_falha = 0
 
-    # if pull_prompts_from_langsmith():
-    #     total_sucesso += 1
-    # else:
-    #     total_falha += 1
+    #if pull_prompts_from_langsmith():
+    #    total_sucesso += 1
+    #else:
+    #    total_falha += 1
 
     # FASE 2: Aqui você edita o YAML manualmente...
     
     # FASE 3: Push
-    # print("\n--- Executando Fase 3: Push ---")
-    # if push_optimized_prompt():
-    #     total_sucesso += 1
-    # else:
-    #     total_falha += 1
+    print("\n--- Executando Fase 3: Push ---")
+    if push_optimized_prompt():
+        total_sucesso += 1
+    else:
+        total_falha += 1
 
     # FASE 4: Evaluate
     print("\n--- Executando Fase 4: Evaluate ---")
