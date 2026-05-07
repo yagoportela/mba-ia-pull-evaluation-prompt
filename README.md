@@ -21,6 +21,7 @@ Este repositório contém a solução técnica para o desafio de Engenharia de P
 | **Correctness** |           0.92 ✅           |      **0.95** ✅      |
 | **Média Geral** | **0.9264 (Reprovado)** | **0.9580 (Aprovado)** |
 
+
 ---
 
 ## Análise de Resultados: Prompt V1 vs. Prompt V2 (Gemini 3)
@@ -59,6 +60,8 @@ A análise comprova que modelos de linguagem avançados (como o Gemini 3) conseg
 ---
 
 ### Evidências de Execução (Screenshots)
+
+<img src="resultado/promptsGemini3.png" alt="Print Prompts Gemini 3">
 
 **1. Avaliação Inicial (Prompt V1 reprovado com Gemini 3):**
 
