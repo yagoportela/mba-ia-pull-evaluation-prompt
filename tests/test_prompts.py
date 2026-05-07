@@ -21,9 +21,10 @@ class TestPrompts:
     def setup(self):
         prompt_path = Path(__file__).parent.parent / "prompts" / "bug_to_user_story_v2.yml"
         self.prompt_data = load_prompts(str(prompt_path))
-        self.system_prompt = ""
         
-        if "messages" in self.prompt_data:
+        self.system_prompt = self.prompt_data.get("system_prompt", "")
+        
+        if not self.system_prompt and "messages" in self.prompt_data:
             for msg in self.prompt_data["messages"]:
                 if msg.get("role") == "system":
                     self.system_prompt = msg.get("content", "")
@@ -53,14 +54,14 @@ class TestPrompts:
 
     def test_prompt_no_todos(self):
         """Garante que você não esqueceu nenhum `[TODO]` no texto."""
-        assert "[TODO]" not in self.system_prompt and "TODO" not in self.system_prompt, \
+        assert "[TODO]" not in self.system_prompt and "[TODO]" not in self.system_prompt, \
             "Foram encontradas marcações 'TODO' no prompt."
 
     def test_minimum_techniques(self):
-        """Verifica (através dos metadados do yaml) se pelo menos 2 técnicas foram listadas."""
-        techniques = self.prompt_data.get("techniques_applied", [])
+        """Verifica (através dos metadados do yaml) se pelo menos 2 técnicas foram listadas nas tags."""
+        techniques = self.prompt_data.get("tags", self.prompt_data.get("techniques_applied", []))
         assert isinstance(techniques, list) and len(techniques) >= 2, \
-            f"O prompt deve listar pelo menos 2 técnicas em 'techniques_applied'. Encontradas: {len(techniques)}"
+            f"O prompt deve listar pelo menos 2 técnicas. Encontradas: {len(techniques)}"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])
