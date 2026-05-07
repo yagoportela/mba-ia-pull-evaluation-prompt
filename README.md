@@ -167,3 +167,7 @@ O teste indicou uma aderência superior às restrições de formatação: a exec
    ```bash
    python src/evaluate.py
    ```
+6. Execute os testes unitários para validar a estrutura do prompt:
+   ```bash
+   pytest tests/test_prompts.py
+   ```
