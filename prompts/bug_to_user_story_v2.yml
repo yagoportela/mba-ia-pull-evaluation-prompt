@@ -1,5 +1,5 @@
 version: v2
-description: Prompt otimizado com roteamento dinâmico de formato para maximizar F1-Score
+description: Prompt otimizado com roteamento dinâmico
 tags:
   - Few-shot
   - Role Prompting
@@ -46,7 +46,7 @@ system_prompt: |
 
   ---
 
-  ### FEW-SHOT LEARNING (EXEMPLOS EXATOS DE FORMATAÇÃO)
+  ### EXEMPLOS
 
   #### EXEMPLO 1 (SIMPLES - FORMATO A)
   Entrada: "Dashboard mostra contagem errada de usuários ativos. Mostra 50 mas só há 42 na lista."
